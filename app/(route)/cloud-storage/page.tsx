@@ -25,8 +25,8 @@ import { getFeatureLimit, getUserPlanTier } from "@/utils/feature-limits";
 type UploadedFile = {
   url: string;
   name: string;
-  size: string;
-  sizeMB: number;
+  size: number;
+  sizeMB: string;
   type: string;
   date: string | undefined;
   key: string;
@@ -80,7 +80,7 @@ export default function CloudStoragePage() {
           url: f.url,
           name: f.name,
           size: f.size,
-          sizeMB: Number(f.sizeMB),
+          sizeMB: f.sizeMB,
           type: f.type,
           date: f.date,
           key: f.key,
@@ -181,7 +181,7 @@ export default function CloudStoragePage() {
     toast.success(`Link copied to clipboard ${url}`);
   };
 
-  const totalUsedMB = files.reduce((sum, file) => sum + (file.sizeMB || 0), 0);
+  const totalUsedMB = files.reduce((sum, file) => sum + (file.size || 0), 0);
   const totalUsedGB = totalUsedMB / 1024;
   const storageLimitGB = storageLimit / 1024;
   const usagePercentage = (totalUsedMB / storageLimit) * 100;
@@ -216,8 +216,8 @@ export default function CloudStoragePage() {
                         {
                           name: file.name,
                           type: type,
-                          sizeMB: file.size / (1024 * 1024),
-                          size: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
+                          size: file.size / (1024 * 1024),
+                          sizeMB: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
                           date: file.lastModified
                             ? new Date(file.lastModified).toISOString().slice(0, 10)
                             : new Date().toISOString().slice(0, 10),
@@ -247,7 +247,7 @@ export default function CloudStoragePage() {
                       <div>
                         <p className="font-medium">{file.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          {file.size} • {file.date}
+                          {file.sizeMB} • {file.date}
                         </p>
                       </div>
                     </div>
@@ -313,7 +313,7 @@ export default function CloudStoragePage() {
                 {["document", "image", "video"].map((type) => {
                   const sum = files
                     .filter((f) => f.type === type)
-                    .reduce((a, b) => a + (b.sizeMB || 0), 0);
+                    .reduce((a, b) => a + (b.size || 0), 0);
                   const icon =
                     type === "document" ? (
                       <FileText className="h-5 w-5 text-blue-500" />
