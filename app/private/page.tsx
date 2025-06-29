@@ -67,6 +67,7 @@ export default function ProfilePage() {
   const [changingEmail, setChangingEmail] = useState(false);
   
   const supabase = createClient();
+  const billingPortalUrl = process.env.NEXT_PUBLIC_COSTUMETR_STRIPE_PORTAL;
 
   useEffect(() => {
     async function loadUserData() {
@@ -621,7 +622,7 @@ export default function ProfilePage() {
                     </p>
                     <Button variant="outline" className="mt-2">
                       <CreditCard className="mr-2 h-4 w-4" />
-                      Billing Portal
+                      <a href={billingPortalUrl}>Billing Portal</a>
                     </Button>
                   </div>
                 </div>

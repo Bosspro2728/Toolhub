@@ -119,7 +119,7 @@ export default function ImageVideoTypesConverterPage() {
         formData.append('target_format', file.to || '');
         try {
           const res = await fetch(
-            'https://services-converter-production.up.railway.app/convert/',
+            `${process.env.NEXT_PUBLIC_FILE_CONVERTER_URL}`,
             { method: 'POST', body: formData }
           );
           if (!res.ok) throw new Error(`Failed to convert ${file.fileName}`);

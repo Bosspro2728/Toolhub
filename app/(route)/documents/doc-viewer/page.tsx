@@ -51,7 +51,7 @@ export default function DocViewerPage() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const uploadRes = await fetch("https://services-view-file.onrender.com/upload-temp-docx/", {
+      const uploadRes = await fetch(`${process.env.NEXT_PUBLIC_DOC_VIEWER_URL}/upload-temp-docx/`, {
         method: "POST",
         body: formData,
       });
@@ -166,7 +166,7 @@ export default function DocViewerPage() {
               <div className="aspect-[8.5/11] bg-muted rounded-lg overflow-hidden">
                 {fileUrl ? (
                   <iframe
-                    src={`https://view.officeapps.live.com/op/embed.aspx?src=https://services-view-file.onrender.com${
+                    src={`https://view.officeapps.live.com/op/embed.aspx?src=${process.env.NEXT_PUBLIC_DOC_VIEWER_URL}${
                       fileUrl
                     }&wdStartOn=1`}
                     className="w-full h-full"

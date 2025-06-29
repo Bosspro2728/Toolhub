@@ -120,7 +120,7 @@ export default function DocumentTypesConverterPage() {
 
         try {
           const response = await fetch(
-            "https://services-converter-production.up.railway.app/convert/",
+            `${process.env.NEXT_PUBLIC_FILE_CONVERTER_URL}`,
             {
               method: "POST",
               body: formData,
