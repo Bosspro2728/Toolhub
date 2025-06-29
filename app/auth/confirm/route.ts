@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
   const next = searchParams.get('next') ?? '/'
   const code = searchParams.get('code')
   const supabase = await createClient()
+  
   if (token_hash && type) {
     const { error } = await supabase.auth.verifyOtp({
       type,
@@ -19,15 +20,26 @@ export async function GET(request: NextRequest) {
     if (error) {
       // For debugging: log the error
       console.error('verifyOtp error:', error)
+      return NextResponse.redirect(new URL(`/error?message=${encodeURIComponent(error.message)}`, request.url))
     }
-    if (!error) {
-      redirect(next)
+    
+    // If next path is reset-password, redirect with token
+    if (next === '/reset-password') {
+      return NextResponse.redirect(new URL(`${next}?token=${token_hash}`, request.url))
     }
+    
+    return NextResponse.redirect(new URL(next, request.url))
   }
   else if (code) {
-    await supabase.auth.exchangeCodeForSession(code)
+    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    if (error) {
+      console.error('exchangeCodeForSession error:', error)
+      return NextResponse.redirect(new URL(`/error?message=${encodeURIComponent(error.message)}`, request.url))
+    }
+    
+    return NextResponse.redirect(new URL(next, request.url))
   }
 
   // Optionally, add error details to the redirect for debugging
-  redirect('/error')
+  return NextResponse.redirect(new URL('/error?message=Invalid confirmation link', request.url))
 }

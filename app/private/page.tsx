@@ -26,9 +26,11 @@ import {
   BarChart, 
   Shield, 
   Save, 
-  Loader2 
+  Loader2,
+  AtSign
 } from 'lucide-react';
 import Link from 'next/link';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 // Define feature names mapping
 const featureNames: Record<string, string> = {
@@ -51,11 +53,18 @@ export default function ProfilePage() {
   const [subscription, setSubscription] = useState<any>(null);
   const [usageData, setUsageData] = useState<any>(null);
   const [saving, setSaving] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [sendingPasswordReset, setSendingPasswordReset] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     displayName: '',
     bio: '',
   });
+  
+  // Email change state
+  const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
+  const [changingEmail, setChangingEmail] = useState(false);
   
   const supabase = createClient();
 
@@ -168,6 +177,81 @@ export default function ProfilePage() {
       toast.error('Failed to update profile');
     } finally {
       setSaving(false);
+    }
+  };
+  
+  const handleSendPasswordReset = async () => {
+    if (!user || !user.email) return;
+    
+    try {
+      setSendingPasswordReset(true);
+      
+      const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+        redirectTo: `${window.location.origin}/auth/confirm?next=/reset-password`,
+      });
+      
+      if (error) throw error;
+      
+      toast.success('Password reset email sent', {
+        description: 'Please check your email for the password reset link'
+      });
+    } catch (error) {
+      console.error('Error sending password reset:', error);
+      toast.error('Failed to send password reset email');
+    } finally {
+      setSendingPasswordReset(false);
+    }
+  };
+  
+  const handleUpdateEmail = async () => {
+    if (!user || !user.email) return;
+    
+    try {
+      setSendingEmail(true);
+      
+      const { error } = await supabase.auth.updateUser({
+        email: user.email
+      });
+      
+      if (error) throw error;
+      
+      toast.success('Email verification sent', {
+        description: 'Please check your email to verify your account'
+      });
+    } catch (error) {
+      console.error('Error sending email update:', error);
+      toast.error('Failed to send email verification');
+    } finally {
+      setSendingEmail(false);
+    }
+  };
+  
+  const handleChangeEmail = async () => {
+    if (!newEmail.trim()) {
+      toast.error('Please enter a new email address');
+      return;
+    }
+    
+    try {
+      setChangingEmail(true);
+      
+      const { error } = await supabase.auth.updateUser({
+        email: newEmail,
+      });
+      
+      if (error) throw error;
+      
+      toast.success('Email change initiated', {
+        description: 'Please check your new email address to confirm the change'
+      });
+      
+      setIsEmailDialogOpen(false);
+      setNewEmail('');
+    } catch (error: any) {
+      console.error('Error changing email:', error);
+      toast.error(error.message || 'Failed to change email');
+    } finally {
+      setChangingEmail(false);
     }
   };
   
@@ -285,8 +369,18 @@ export default function ProfilePage() {
                 <form className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" value={user.email} disabled />
-                    <p className="text-xs text-muted-foreground">Your email cannot be changed</p>
+                    <div className="flex gap-2">
+                      <Input id="email" value={user.email} disabled />
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => setIsEmailDialogOpen(true)}
+                      >
+                        <AtSign className="h-4 w-4 mr-2" />
+                        Change
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">To change your email, click the Change button</p>
                   </div>
                   
                   <div className="space-y-2">
@@ -347,8 +441,8 @@ export default function ProfilePage() {
           
           <Card>
             <CardHeader>
-              <CardTitle>Account Security (comming soon)</CardTitle>
-              <CardDescription>For any questions or problems contact us using <a href={"/contact"}>Contacts Page</a></CardDescription>
+              <CardTitle>Account Security</CardTitle>
+              <CardDescription>Manage your account security settings</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
@@ -359,7 +453,20 @@ export default function ProfilePage() {
                     <p className="text-sm text-muted-foreground">Change your password</p>
                   </div>
                 </div>
-                <Button variant="outline">Change Password</Button>
+                <Button 
+                  variant="outline" 
+                  onClick={handleSendPasswordReset}
+                  disabled={sendingPasswordReset}
+                >
+                  {sendingPasswordReset ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    'Change Password'
+                  )}
+                </Button>
               </div>
               
               <Separator />
@@ -368,11 +475,24 @@ export default function ProfilePage() {
                 <div className="flex items-center gap-2">
                   <Mail className="h-5 w-5 text-muted-foreground" />
                   <div>
-                    <p className="font-medium">Email Preferences</p>
-                    <p className="text-sm text-muted-foreground">Manage your email notifications</p>
+                    <p className="font-medium">Email Verification</p>
+                    <p className="text-sm text-muted-foreground">Verify your email address</p>
                   </div>
                 </div>
-                <Button variant="outline">Manage</Button>
+                <Button 
+                  variant="outline"
+                  onClick={handleUpdateEmail}
+                  disabled={sendingEmail}
+                >
+                  {sendingEmail ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    'Send Verification'
+                  )}
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -626,6 +746,55 @@ export default function ProfilePage() {
           </Card>
         </TabsContent>
       </Tabs>
+      
+      {/* Email Change Dialog */}
+      <Dialog open={isEmailDialogOpen} onOpenChange={setIsEmailDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change Email Address</DialogTitle>
+            <DialogDescription>
+              Enter your new email address. You'll need to verify this email before the change takes effect.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="current-email">Current Email</Label>
+              <Input id="current-email" value={user?.email} disabled />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="new-email">New Email</Label>
+              <Input 
+                id="new-email" 
+                type="email" 
+                placeholder="Enter your new email address"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEmailDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleChangeEmail}
+              disabled={changingEmail || !newEmail.trim() || newEmail === user?.email}
+            >
+              {changingEmail ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Changing...
+                </>
+              ) : (
+                'Change Email'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
