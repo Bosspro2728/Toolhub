@@ -1,0 +1,14 @@
+.ql-snow .ql-stroke{
+  stroke: var(--ql-svg-stroke);
+}
+.ql-snow .ql-fill{
+  fill: var(--ql-svg-fill);
+}
+
+.ql-snow .ql-picker{
+  color: var(--ql-text-color);
+}
+
+.ql-picker-options{
+  color: var(--ql-options-color)
+}

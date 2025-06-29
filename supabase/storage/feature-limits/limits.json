@@ -1,0 +1,50 @@
+{
+  "free": {
+    "ai_chat_daily_limit": 3,
+    "text_humanizer_daily_limit": 3,
+    "ai_detection_daily_limit": 3,
+    "translation_daily_limit": 3,
+    "text_to_speech_daily_limit": 1,
+    "seo_analyzer_daily_limit": 1,
+    "code_snippets_daily_limit": 2,
+    "collaborative_editor": false,
+    "document_view_daily_limit": 2,
+    "doc_creator_export": ["html"],
+    "file_conversion_daily_limit": 2,
+    "media_conversion_daily_limit": 2,
+    "url_shortener_daily_limit": 3,
+    "storage_limit_mb": 300
+  },
+  "pro": {
+    "ai_chat_daily_limit": 10,
+    "text_humanizer_daily_limit": 6,
+    "ai_detection_daily_limit": 6,
+    "translation_daily_limit": 6,
+    "text_to_speech_daily_limit": 3,
+    "seo_analyzer_daily_limit": 3,
+    "code_snippets_daily_limit": 5,
+    "collaborative_editor": true,
+    "document_view_daily_limit": 5,
+    "doc_creator_export": ["html", "docx", "pdf"],
+    "file_conversion_daily_limit": 5,
+    "media_conversion_daily_limit": 5,
+    "url_shortener_daily_limit": 5,
+    "storage_limit_mb": 1024
+  },
+  "master": {
+    "ai_chat_daily_limit": 50,
+    "text_humanizer_daily_limit": 30,
+    "ai_detection_daily_limit": 30,
+    "translation_daily_limit": 30,
+    "text_to_speech_daily_limit": 20,
+    "seo_analyzer_daily_limit": 20,
+    "code_snippets_daily_limit": 50,
+    "collaborative_editor": true,
+    "document_view_daily_limit": 30,
+    "doc_creator_export": ["html", "docx", "pdf"],
+    "file_conversion_daily_limit": 30,
+    "media_conversion_daily_limit": 30,
+    "url_shortener_daily_limit": 30,
+    "storage_limit_mb": 5120
+  }
+}
